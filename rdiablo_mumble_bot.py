@@ -137,8 +137,7 @@ def main():
     else:
         logging.basicConfig(level=logging.INFO)
 
-    opt, args = optp.parse_args()
-
+    # Read JSON config. See sample_config.json for samples.
     with open(opt.config) as config:
         cfg = json.loads(config.read())
 
