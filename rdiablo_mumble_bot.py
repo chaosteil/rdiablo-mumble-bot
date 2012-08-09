@@ -38,6 +38,10 @@ class DiabloMumbleBot(MumbleProtocol):
         log.info("User %d is not clean! Kicking for reason: %s" \
                  % (user, str(reason)))
 
+        if self.config['kick_diagnostic']:
+            log.info("Kick Diagnostic is turned on. No actual kick.")
+            return
+
         remove = Mumble_pb2.UserRemove()
         remove.session = user
         remove.reason = self.config['kick_reason']
@@ -98,10 +102,11 @@ class DiabloMumbleBot(MumbleProtocol):
 
                 # Convert to string
                 address = socket.inet_ntop(socket.AF_INET, adr)
+                dns_lookup = '%s.%s' % (address, self.config['blacklist_dns'])
+                log.info("Checking address for User %d with '%s'" \
+                         % (message.session, dns_lookup))
 
-                d = self.dns.lookupAddress('%s.%s' \
-                                           % (address,
-                                              self.config['blacklist_dns']),
+                d = self.dns.lookupAddress(dns_lookup,
                                            timeout=[1, 2, 5, 10])
 
                 # Add our handling of the retrieved user
