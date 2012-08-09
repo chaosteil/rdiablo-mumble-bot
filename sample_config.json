@@ -1,0 +1,13 @@
+{
+  "username": "TestBot",
+  "password": null,
+  "channel": "BotRoom",
+
+  "host": "localhost",
+  "port": 64738,
+
+  "tokens": [],
+
+  "blacklist_dns": "rbl.efnetrbl.org",
+  "kick_reason": "You got kicked!"
+}
