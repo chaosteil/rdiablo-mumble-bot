@@ -1,0 +1,3 @@
+*.pyc
+Mumble.proto
+Mumble_pb2.py
