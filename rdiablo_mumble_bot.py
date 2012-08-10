@@ -82,7 +82,8 @@ class DiabloMumbleBot(MumbleProtocol):
 
         elif msg_class == Mumble_pb2.UserState:
             # Assign our session when we retrieve it
-            self.users[message.session] = message.name
+            if message.name:
+                self.users[message.session] = message.name
 
             if message.name == self.username:
                 self.session = message.session
