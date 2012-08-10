@@ -35,8 +35,21 @@ class DiabloMumbleBot(MumbleProtocol):
 
     def check_address(self, addresses, user=None):
         reason = addresses[0][0].payload
-        log.info("User %d is not clean! Kicking for reason: %s" \
-                 % (user, str(reason)))
+        log.info("Received address: %s" % str(reason))
+
+        if self.config['response_kick']:
+            self.user_dirty(user)
+        else:
+            self.user_clean(user)
+
+    def check_address_failure(self, reason, user=None):
+        if self.config['response_kick']:
+            self.user_clean(user)
+        else:
+            self.user_dirty(user)
+
+    def user_dirty(self, user):
+        log.info("User %d is dirty! Kicking..." % user)
 
         if self.config['kick_diagnostic']:
             log.info("Kick Diagnostic is turned on. No actual kick.")
@@ -47,7 +60,7 @@ class DiabloMumbleBot(MumbleProtocol):
         remove.reason = self.config['kick_reason']
         self.sendProtobuf(remove)
 
-    def check_address_failure(self, reason, user=None):
+    def user_clean(self, user):
         log.info("User %d is clean." % user)
 
     def connectionLost(self, reason):
