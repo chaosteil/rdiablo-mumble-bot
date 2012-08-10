@@ -32,6 +32,8 @@ class DiabloMumbleBot(MumbleProtocol):
         self.session = None
         # Channel is to save the requested channel ID
         self.channel = None
+        # Saves the sessions of the users
+        self.users = {}
 
     def check_address(self, addresses, user=None):
         reason = addresses[0][0].payload
@@ -49,7 +51,7 @@ class DiabloMumbleBot(MumbleProtocol):
             self.user_dirty(user)
 
     def user_dirty(self, user):
-        log.info("User %d is dirty! Kicking..." % user)
+        log.info("User %s is dirty! Kicking..." % self.users[user])
 
         if self.config['kick_diagnostic']:
             log.info("Kick Diagnostic is turned on. No actual kick.")
@@ -61,7 +63,7 @@ class DiabloMumbleBot(MumbleProtocol):
         self.sendProtobuf(remove)
 
     def user_clean(self, user):
-        log.info("User %d is clean." % user)
+        log.info("User %s is clean." % self.users[user])
 
     def connectionLost(self, reason):
         reactor.stop()
@@ -80,6 +82,8 @@ class DiabloMumbleBot(MumbleProtocol):
 
         elif msg_class == Mumble_pb2.UserState:
             # Assign our session when we retrieve it
+            self.users[message.session] = message.name
+
             if message.name == self.username:
                 self.session = message.session
 
@@ -116,8 +120,8 @@ class DiabloMumbleBot(MumbleProtocol):
                 # Convert to string
                 address = socket.inet_ntop(socket.AF_INET, adr)
                 dns_lookup = '%s.%s' % (address, self.config['blacklist_dns'])
-                log.info("Checking address for User %d with '%s'" \
-                         % (message.session, dns_lookup))
+                log.info("Checking address for User %s with '%s'" \
+                         % (self.users[message.session], dns_lookup))
 
                 d = self.dns.lookupAddress(dns_lookup,
                                            timeout=[1, 2, 5, 10])
