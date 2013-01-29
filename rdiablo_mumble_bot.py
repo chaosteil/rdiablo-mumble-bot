@@ -32,11 +32,26 @@ class DiabloMumbleBot(MumbleProtocol):
         self.session = None
         # Channel is to save the requested channel ID
         self.channel = None
+        # Saves the sessions of the users
+        self.users = {}
 
     def check_address(self, addresses, user=None):
         reason = addresses[0][0].payload
-        log.info("User %d is not clean! Kicking for reason: %s"
-                 % (user, str(reason)))
+        log.info("Received address: %s" % str(reason))
+
+        if self.config['response_kick']:
+            self.user_dirty(user)
+        else:
+            self.user_clean(user)
+
+    def check_address_failure(self, reason, user=None):
+        if self.config['response_kick']:
+            self.user_clean(user)
+        else:
+            self.user_dirty(user)
+
+    def user_dirty(self, user):
+        log.info("User %s is dirty! Kicking..." % self.users[user])
 
         if self.config['kick_diagnostic']:
             log.info("Kick Diagnostic is turned on. No actual kick.")
@@ -47,8 +62,8 @@ class DiabloMumbleBot(MumbleProtocol):
         remove.reason = self.config['kick_reason']
         self.sendProtobuf(remove)
 
-    def check_address_failure(self, reason, user=None):
-        log.info("User %d is clean." % user)
+    def user_clean(self, user):
+        log.info("User %s is clean." % self.users[user])
 
     def connectionLost(self, reason):
         reactor.stop()
@@ -67,6 +82,9 @@ class DiabloMumbleBot(MumbleProtocol):
 
         elif msg_class == Mumble_pb2.UserState:
             # Assign our session when we retrieve it
+            if message.name:
+                self.users[message.session] = message.name
+
             if message.name == self.username:
                 self.session = message.session
 
@@ -103,8 +121,8 @@ class DiabloMumbleBot(MumbleProtocol):
                 # Convert to string
                 address = socket.inet_ntop(socket.AF_INET, adr)
                 dns_lookup = '%s.%s' % (address, self.config['blacklist_dns'])
-                log.info("Checking address for User %d with '%s'"
-                         % (message.session, dns_lookup))
+                log.info("Checking address for User %s with '%s'"
+                         % (self.users[message.session], dns_lookup))
 
                 d = self.dns.lookupAddress(dns_lookup,
                                            timeout=[1, 2, 5, 10])

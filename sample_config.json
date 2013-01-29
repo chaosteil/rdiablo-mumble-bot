@@ -9,6 +9,7 @@
   "tokens": [],
 
   "kick_diagnostic": false,
+  "response_kick": true,
   "blacklist_dns": "rbl.efnetrbl.org",
   "kick_reason": "You got kicked!"
 }
