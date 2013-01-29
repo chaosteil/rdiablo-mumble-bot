@@ -35,7 +35,7 @@ class DiabloMumbleBot(MumbleProtocol):
 
     def check_address(self, addresses, user=None):
         reason = addresses[0][0].payload
-        log.info("User %d is not clean! Kicking for reason: %s" \
+        log.info("User %d is not clean! Kicking for reason: %s"
                  % (user, str(reason)))
 
         if self.config['kick_diagnostic']:
@@ -103,7 +103,7 @@ class DiabloMumbleBot(MumbleProtocol):
                 # Convert to string
                 address = socket.inet_ntop(socket.AF_INET, adr)
                 dns_lookup = '%s.%s' % (address, self.config['blacklist_dns'])
-                log.info("Checking address for User %d with '%s'" \
+                log.info("Checking address for User %d with '%s'"
                          % (message.session, dns_lookup))
 
                 d = self.dns.lookupAddress(dns_lookup,
